@@ -68,3 +68,14 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+Define points for each task add into your readme file. Issue #5 - 1 point;
+
+- Render data Issue #1. Api Url - 5 points; Meerim Baatyrkanova
+- Render menu Issue #2 - 3 points; Meerim Batyrkanova
+- Show Active menu Issue #6 - 1 points; Meerim Muktarova
+- Filter functionality Issue #3 - 3 points; Meerim Muktarova
+- Search functionality Issue #4 - 3 points; Zada
+- Search by feature. Issue #7 - 3 points; Zada
+- Filter by price feature. Issue #8 - 3 points; Ermek
+- Add to card feature. Issue #9 - 5 points; Anara

@@ -299,6 +299,23 @@ Menu
   display: flex;
   flex-direction: column;
 }
+.input-message{
+  margin:1rem;
+  padding:1rem;
+  font-size: large;
+  background-color: rgb(230, 165, 165);
+  border: red 0px solid;
+  border-radius:0.5rem;
+  text-align: center;
+}
+.loading-image-container{
+  width:50%;
+  margin:auto
+}
+.input-loading-image{
+  width:100%;
+
+}
 
 @media screen and (min-width: 768px) {
   .menu-item {

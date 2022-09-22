@@ -1,16 +1,14 @@
 import React from "react";
 
-export default function InputSearch({ getInputValue, submit, searchDish }) {
+export default function InputSearch({ getInputValue}) {
   return (
-    <form className="form" onSubmit={(e) => submit(e)}>
+    <form className="form">
       <input
         type="text"
-        placeholder="Name of the dish..."
-        value={searchDish}
-        onChange={(e) => getInputValue(e)}
+        placeholder="Search..."
         className="search-dish"
+        onChange={(event) => getInputValue(event.target.value)}
       />
-      <input type="submit" value="Search" className="submit" />
     </form>
   );
 }

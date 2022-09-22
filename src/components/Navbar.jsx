@@ -1,54 +1,61 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { links } from "./data";
+import { FaBars, FaCartPlus } from "react-icons/fa";
+import logo from "../logo.png";
 
 export default function Navbar() {
-  function handleClick() {
-    const links = document.querySelector("ul");
-    links.setAttribute("className", "links");
-  }
+  const [showLinks, setShowLinks] = useState(false);
+  const [colorChange, setColorChange] = useState(false);
+  const linksContainerRef = useRef(null);
+  const linksRef = useRef(null);
+  const toggleLinks = () => {
+    setShowLinks(!showLinks);
+  };
+
+  useEffect(() => {
+    const linksHeight = linksRef.current.getBoundingClientRect().height;
+    if (showLinks) {
+      linksContainerRef.current.style.height = `${linksHeight}px`;
+    } else {
+      linksContainerRef.current.style.height = "0px";
+    }
+  }, [showLinks]);
+
+  const changeNavbarColor = () => {
+    if (window.scrollY >= 20) {
+      setColorChange(true);
+    } else {
+      setColorChange(false);
+    }
+  };
+
+  window.addEventListener("scroll", changeNavbarColor);
+
   return (
-    <nav className="navbar navbar-expand-lg bg-light text-light">
-      <div className="container-fluid">
-        <a href="#" className="navbar-brand">
-          <img src="" alt="" />
-          Brand
-        </a>
-        <button
-          onClick={() => handleClick()}
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbar-restaurant"
-          aria-controls="navbar-restaurant"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span
-            className="
-               navbar-toggler-icon"
-          ></span>
-        </button>
-        <div className="collapse navbar-collapse" id="navbar-restaurant">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item">
-              <a href="#" className="nav-link">
-                Home
+    <nav className={colorChange ? "color-changed" : "transparent"}>
+      <div className="nav-center">
+        <div className="nav-header">
+          <img src={logo} className="logo" alt="logo" />
+          <button className="nav-toggle" onClick={toggleLinks}>
+            <FaBars />
+          </button>
+        </div>
+        <div className="links-container" ref={linksContainerRef}>
+          <ul className="links" ref={linksRef}>
+            {links.map((link) => {
+              const { id, url, text } = link;
+              return (
+                <li key={id}>
+                  <a href={url}>{text}</a>
+                </li>
+              );
+            })}
+            <li className="cart" style={{ color: "white" }}>
+              <a href="#">
+                <FaCartPlus className="cart-icon" />
               </a>
-            </li>
-            <li className="nav-item">
-              <a href="#" className="nav-link">
-                About
-              </a>
-            </li>
-            <li className="nav-item">
-              <a href="#" className="nav-link">
-                Menu
-              </a>
-            </li>
-            <li className="nav-item">
-              <a href="#" className="nav-link">
-                Contact Us
-              </a>
+              1
             </li>
           </ul>
         </div>

@@ -2,12 +2,13 @@ import axios from "axios";
 import React, { Component } from "react";
 import Categories from "./Categories";
 import InputSearch from "./InputSearch";
+import InputMessage from "./InputMessage";
 import MenuItem from "./MenuItem";
 import PriceFilter from "./PriceFilter";
+import SetInputLoading from "./SetInputLoading";
 
 export default class Menu extends Component {
   state = {
-    searchDish: "",
     menu: [],
     allCategories: [],
     menuToShow: [],
@@ -15,6 +16,9 @@ export default class Menu extends Component {
     active: "",
     selected: false,
     searching: false,
+    errInputMessage: false,
+    inputLoading: false
+ 
   };
   componentDidMount() {
     axios
@@ -33,25 +37,25 @@ export default class Menu extends Component {
       .catch((err) => console.log("Something went wrong", err));
   }
 
-  inputValue = (e) => {
-    const { searchDish } = this.state;
-    this.setState({ searchDish: e.target.value });
-  };
+  inputValue  = (inputValue) => {
+    const {menu, menuToShow} = this.state
 
-  submit = (e) => {
-    e.preventDefault();
-    const { searchDish, menu, searching } = this.state;
-    const filteredBySearch = menu.filter((menuItem) =>
-      menuItem.title
-        .toLowerCase()
-        .includes(searchDish.toLocaleLowerCase().trim())
-    );
-
-    this.setState({
-      menuToShow: filteredBySearch,
-      searching: true,
+    this.setState({inputLoading:true})
+    setTimeout(()=>{
+      this.setState({inputLoading:false})
+    },300)
+    const menuSearch = menu.filter((item) => {
+      return item.title.toLowerCase().includes(inputValue.toLowerCase());
     });
+      this.setState({ searching: true, menuToShow: menuSearch });
+      if(menuToShow.length === 0){
+        this.setState({errInputMessage: true})
+      }else{
+        this.setState({errInputMessage: false})
+      }
   };
+
+
 
   filterByCategories = (category) => {
     const { menu } = this.state;
@@ -107,8 +111,9 @@ export default class Menu extends Component {
       clicked,
       menuToShow,
       active,
-      searchDish,
       searching,
+      errInputMessage,
+      inputLoading
     } = this.state;
 
     return (
@@ -117,8 +122,6 @@ export default class Menu extends Component {
         <hr className="underline" />
         <InputSearch
           getInputValue={this.inputValue}
-          submit={this.submit}
-          searchDish={searchDish}
         />
         <div className="filter">
           <Categories
@@ -128,11 +131,22 @@ export default class Menu extends Component {
           />
           <PriceFilter priceRanges={this.onChange} />
         </div>
-        <article className="section-center">
+          {(inputLoading && <SetInputLoading/>)}
+          {(!errInputMessage? 
+          <article className="section-center">
           {(clicked || searching ? menuToShow : menu).map((menuItem) => {
-            return <MenuItem menuItem={menuItem} key={menuItem.id} />;
+        
+            return <MenuItem menuItem={menuItem} key={menuItem.id} />;       
           })}
-        </article>
+        </article> 
+           : 
+           <InputMessage/>)}
+
+    
+
+        
+
+        
       </div>
     );
   }

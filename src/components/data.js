@@ -19,18 +19,14 @@ export const links = [
     url: "/team",
     text: "team",
   },
+
   {
     id: 5,
-    url: "/gallery",
-    text: "gallery",
-  },
-  {
-    id: 6,
     url: "/reservation",
     text: "reservation",
   },
   {
-    id: 7,
+    id: 6,
     url: "/contactus",
     text: "contact us",
   },

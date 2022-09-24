@@ -4,7 +4,8 @@ import { links } from "./data";
 import { FaBars, FaCartPlus } from "react-icons/fa";
 import logo from "../logo.png";
 
-export default function Navbar() {
+export default function Navbar(props) {
+  const { openCart } = props;
   const [showLinks, setShowLinks] = useState(false);
   const [colorChange, setColorChange] = useState(false);
   const linksContainerRef = useRef(null);
@@ -37,9 +38,16 @@ export default function Navbar() {
       <div className="nav-center">
         <div className="nav-header">
           <img src={logo} className="logo" alt="logo" />
-          <button className="nav-toggle" onClick={toggleLinks}>
-            <FaBars />
-          </button>
+          <div className="nav-header-right">
+            <div className="cart-logo">
+              <button onClick={openCart}>
+                <FaCartPlus className="cart-icon" />
+              </button>
+            </div>
+            <button className="nav-toggle" onClick={toggleLinks}>
+              <FaBars />
+            </button>
+          </div>
         </div>
         <div className="links-container" ref={linksContainerRef}>
           <ul className="links" ref={linksRef}>
@@ -51,12 +59,6 @@ export default function Navbar() {
                 </li>
               );
             })}
-            <li className="cart" style={{ color: "white" }}>
-              <a href="#">
-                <FaCartPlus className="cart-icon" />
-              </a>
-              1
-            </li>
           </ul>
         </div>
       </div>

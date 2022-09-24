@@ -1,7 +1,12 @@
 import React from "react";
+import "./Cart/Cart.css";
 
 export default function MenuItem(props) {
-  const { menuItem } = props;
+  const { menuItem, openCart, onAdd } = props;
+  const handleClick = () => {
+    openCart();
+    onAdd();
+  };
   return (
     <div className="menu-item">
       <div>
@@ -13,7 +18,9 @@ export default function MenuItem(props) {
           <h5 className="price"> $ {menuItem.price}</h5>
         </header>
         <p className="item-text">{menuItem.desc.slice(1, -1)}</p>
-        <button className="cart-btn">Add To Cart</button>
+        <button className="cart-btn" onClick={() => handleClick()}>
+          Add To Cart
+        </button>
       </div>
     </div>
   );

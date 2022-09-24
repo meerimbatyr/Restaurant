@@ -1,33 +1,35 @@
 import "./App.css";
 import React, { Component } from "react";
-import Navbar from "./components/Navbar";
-import bg from "./images/full-bg.png";
-import Home from "./pages/Home";
 import axios from "axios";
-import InputSearch from "./components/InputSearch";
-import Categories from "./components/Categories";
-import PriceFilter from "./components/PriceFilter";
-import MenuItem from "./components/MenuItem";
-import SetInputLoading from "./components/SetInputLoading";
-import InputMessage from "./components/InputMessage";
-import Cart from "./components/Cart/Cart";
+import Navbar from "./components/pages/Home/Navbar/Navbar";
+import bg from "./images/full-bg.png";
+import Home from "./components/pages/Home/Home";
+import InputSearch from "./components/pages/Menu/Search/InputSearch";
+import Categories from "./components/pages/Menu/Search/Categories/Categories";
+import PriceFilter from "./components/pages/Menu/Search/Categories/PriceFilter";
+import MenuItem from "./components/pages/Menu/MenuItem";
+import Loading from "./components/pages/Menu/Search/SetInputLoading";
+import InputMessage from "./components/pages/Menu/Search/InputMessage";
+import Cart from "./components/pages/Home/Navbar/Cart/Cart";
 
 class App extends Component {
   state = {
     menu: [],
     allCategories: [],
     menuToShow: [],
-    clicked: false,
+    cartItems: JSON.parse(localStorage.getItem("cartitems")) || [],
     active: "",
-    selected: false,
-    searching: false,
     errInputMessage: false,
-    inputLoading: false,
-    cartItems: [],
+    loading: false,
     openCart: false,
     closeCart: false,
   };
+
+  ///Fetching API
   componentDidMount() {
+    const { cartItems } = this.state;
+    this.setState({ loading: true });
+    this.loading();
     axios
       .get(
         "https://gist.githubusercontent.com/maratgaip/44060c688fcf5f2b7b3985a6d15fdb1d/raw/e93c3dce0826d08c8c6e779cb5e6d9512c8fdced/restaurant-menu.json"
@@ -39,22 +41,40 @@ class App extends Component {
           ...new Set(res.data.map((item) => item.category)),
         ];
 
-        this.setState({ menu: res.data, allCategories });
+        this.setState({
+          menu: res.data,
+          allCategories,
+          menuToShow: [...res.data],
+        });
       })
       .catch((err) => console.log("Something went wrong", err));
   }
 
-  inputValue = (inputValue) => {
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.cartItems !== this.state.cartItems) {
+      localStorage.setItem("cartitems", JSON.stringify(this.state.cartItems));
+    }
+  }
+
+  //Loading
+  loading = () => {
+    this.setState({ loading: true });
+    setTimeout(() => {
+      this.setState({ loading: false });
+    }, 500);
+  };
+
+  //Searching dishes by name
+  getInputValue = (inputValue) => {
     const { menu, menuToShow } = this.state;
 
-    this.setState({ inputLoading: true });
-    setTimeout(() => {
-      this.setState({ inputLoading: false });
-    }, 300);
+    this.loading();
+
     const menuSearch = menu.filter((item) => {
-      return item.title.toLowerCase().includes(inputValue.toLowerCase());
+      return item.title.toLowerCase().includes(inputValue.toLowerCase().trim());
     });
-    this.setState({ searching: true, menuToShow: menuSearch });
+
+    this.setState({ menuToShow: menuSearch });
     if (menuToShow.length === 0) {
       this.setState({ errInputMessage: true });
     } else {
@@ -62,26 +82,24 @@ class App extends Component {
     }
   };
 
+  //Filter by categories
   filterByCategories = (category) => {
     const { menu } = this.state;
     const filteredMenu = menu.filter((item) => item.category === category);
     if (category === "all") {
       this.setState({
-        clicked: true,
         menuToShow: menu,
-        selected: false,
         active: "all",
       });
     } else {
       this.setState({
-        clicked: true,
         menuToShow: filteredMenu,
-        selected: false,
         active: category,
       });
     }
   };
 
+  //Filter by price
   onChange = (e) => {
     const { menu } = this.state;
     const selectedPrice = e.target.value;
@@ -92,8 +110,6 @@ class App extends Component {
       );
       this.setState({
         menuToShow: filteredMenuByPrice,
-        selected: true,
-        clicked: true,
         active: "all",
       });
     };
@@ -110,38 +126,84 @@ class App extends Component {
     }
   };
 
-  openCartFn = () => {
-    console.log("clicked");
-    this.setState({ openCart: true, closeCart: false });
+  //Cart Open Sidebar
+  toggleCartFn = () => {
+    this.setState({ openCart: !this.state.openCart });
   };
 
   closeCartFn = () => {
-    this.setState({ closeCart: true, openCart: false });
+    this.setState({ openCart: false });
   };
 
   //Adding items to Cart
-  onAdd = (product) => {
+  addToCart = (menuItem) => {
     const { cartItems } = this.state;
-    const exist = cartItems.find((cartItem) => cartItem.id === product.id);
-    if (exist) {
-      const cartItems = cartItems.map((cartItem) =>
-        cartItem.id === product.id ? { ...exist, qty: exist.qty + 1 } : cartItem
-      );
-      this.setState({ cartItems });
+
+    const exist = cartItems.find((cartItem) => cartItem.id === menuItem.id);
+
+    if (!exist) {
+      this.setState({ cartItems: [...cartItems, { ...menuItem, qty: 1 }] });
     } else {
-      this.setState({ cartItems: [...cartItems, { ...product, qty: 1 }] });
+      const increase = cartItems.map((cartItem) => {
+        if (cartItem.id === menuItem.id) {
+          // console.log(cartItem, menuItem, exist);
+          return { ...exist, qty: exist.qty + 1 };
+        } else {
+          return cartItem;
+        }
+      });
+      this.setState({ cartItems: [...increase] });
     }
   };
+
+  //Removing item from cart by decreasing it
+  decreaseFromCart = (menuItem) => {
+    const { cartItems } = this.state;
+
+    const exist = cartItems.find((cartItem) => cartItem.id === menuItem.id);
+    if (exist.qty === 1) {
+      const filter = cartItems.filter(
+        (cartItem) => cartItem.id !== menuItem.id
+      );
+      this.setState({ cartItems: [...filter] });
+    } else {
+      const decrease = cartItems.map((cartItem) => {
+        if (cartItem.id === menuItem.id) {
+          return { ...exist, qty: exist.qty - 1 };
+        } else {
+          return cartItem;
+        }
+      });
+      this.setState({ cartItems: [...decrease] });
+    }
+  };
+
+  //remove item
+  removeItem = (menuItem) => {
+    const { cartItems } = this.state;
+
+    const exist = cartItems.find((cartItem) => cartItem.id === menuItem.id);
+    if (exist) {
+      const filter = cartItems.filter(
+        (cartItem) => cartItem.id !== menuItem.id
+      );
+      this.setState({ cartItems: [...filter] });
+    }
+  };
+
+  //clearCart
+  clearCart = () => {
+    const { cartItems } = this.state;
+    this.setState({ cartItems: [] });
+  };
+
   render() {
     const {
-      menu,
       allCategories,
-      clicked,
       menuToShow,
       active,
-      searching,
       errInputMessage,
-      inputLoading,
+      loading,
       openCart,
       closeCart,
       cartItems,
@@ -149,40 +211,46 @@ class App extends Component {
 
     return (
       <>
-        <Navbar openCart={this.openCartFn} />
+        <Navbar toggleCart={this.toggleCartFn} cartItems={cartItems} />
         <Home />
+
         <div className="menu">
           {openCart && (
             <Cart
               openCart={openCart}
-              closeCartFn={this.closeCartFn}
-              closeCart={closeCart}
-              onAdd={this.onAdd}
+              toggleCartFn={this.toggleCartFn}
+              addToCart={this.addToCart}
+              decreaseFromCart={this.decreaseFromCart}
+              removeItem={this.removeItem}
+              clearCart={this.clearCart}
               cartItems={cartItems}
             />
           )}
 
           <h2 className="title">Our Menu</h2>
           <hr className="underline" />
-          <InputSearch getInputValue={this.inputValue} />
+          <InputSearch getInputValue={this.getInputValue} />
+
           <div className="filter">
             <Categories
               categories={allCategories}
               filter={this.filterByCategories}
               active={active}
             />
+
             <PriceFilter priceRanges={this.onChange} />
           </div>
-          {inputLoading && <SetInputLoading />}
-          {!errInputMessage ? (
+
+          {loading ? (
+            <Loading />
+          ) : !errInputMessage ? (
             <article className="section-center">
-              {(clicked || searching ? menuToShow : menu).map((menuItem) => {
+              {menuToShow.map((menuItem) => {
                 return (
                   <MenuItem
                     menuItem={menuItem}
                     key={menuItem.id}
-                    openCart={this.openCartFn}
-                    onAdd={this.onAdd}
+                    addToCart={this.addToCart}
                   />
                 );
               })}

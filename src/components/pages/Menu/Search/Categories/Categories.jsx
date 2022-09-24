@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Categories(props) {
   const { categories, filter, active } = props;
-  const activeStyle = { backgroundColor: "#c59d5f", color: "white" };
+  const activeStyle = { backgroundColor: "hsl(209, 61%, 16%)", color: "white" };
 
   return (
     <div className="btn-container">

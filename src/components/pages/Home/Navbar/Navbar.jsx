@@ -1,11 +1,11 @@
 import React from "react";
+import "./Navbar.css";
 import { useState, useRef, useEffect } from "react";
 import { links } from "./data";
 import { FaBars, FaCartPlus } from "react-icons/fa";
-import logo from "../logo.png";
+import logo from "../../../../images/logo.png";
 
-export default function Navbar(props) {
-  const { openCart } = props;
+export default function Navbar({ toggleCart, cartItems }) {
   const [showLinks, setShowLinks] = useState(false);
   const [colorChange, setColorChange] = useState(false);
   const linksContainerRef = useRef(null);
@@ -31,6 +31,10 @@ export default function Navbar(props) {
     }
   };
 
+  const totalItemsInCart = cartItems.reduce((prev, curr) => {
+    return (prev += curr.qty);
+  }, 0);
+
   window.addEventListener("scroll", changeNavbarColor);
 
   return (
@@ -40,8 +44,9 @@ export default function Navbar(props) {
           <img src={logo} className="logo" alt="logo" />
           <div className="nav-header-right">
             <div className="cart-logo">
-              <button onClick={openCart}>
+              <button onClick={toggleCart}>
                 <FaCartPlus className="cart-icon" />
+                <span>{totalItemsInCart}</span>
               </button>
             </div>
             <button className="nav-toggle" onClick={toggleLinks}>
